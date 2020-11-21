@@ -24,28 +24,31 @@ void drawCharacter(sprite &myS, BITMAP *b, BITMAP *buffer);
 void drawCars(vector<carSprite> &carArray, BITMAP *cars[][21], BITMAP *buf, int speed);
 void collision(vector<carSprite> &carArray, sprite &myS, int &score);
 
+
 int main() {
 	init();
 	int lives = 5;
+	int time = 5000;
 	int startX = 375;
 	int startY = 550;
+	bool hasWon = false;
 	
 	BITMAP *playerSprite;
 	playerSprite = load_bitmap("spriteSmallBlackBackground.bmp", NULL);
 	
+	BITMAP *gameOver;
+	gameOver = load_bitmap("GAMEOVER.bmp", NULL);
+	
+		BITMAP *winner;
+	winner = load_bitmap("winner.bmp", NULL);
+	
+	//split spritesheets
 	BITMAP *car_spritesheet;
-     BITMAP *cars[8][21];     
+     BITMAP *cars[8][21];  
+     BITMAP *flippedcars[8][21];   
 	//load the car bitmap
 	car_spritesheet = load_bitmap("Car Wars Counters A 24jun2013____GTA_2.bmp", NULL);
-	//placeholder to blit the cars into
-	BITMAP *placeholder;
-	placeholder = create_bitmap(100, 50);
 	
-    BITMAP *buffer =NULL; //create buffer
-    buffer = create_bitmap(800, 600);
-    sprite player = {startX, startY};
-    
-    //split spritesheet into the array
     for(int x=0; x<8; x++)
 	{
 	         for(int y=0; y<21; y++)
@@ -60,9 +63,30 @@ int main() {
                       
                       }
 	
-	
+    }
+    
+    //load the car bitmap
+	car_spritesheet = load_bitmap("Car Wars Counters A 24jun2013____GTA_2FLIP.bmp", NULL);
+    for(int x=0; x<8; x++)
+	{
+	         for(int y=0; y<21; y++)
+	         {        
+                      //needs a bitmap to copy to, so load a blank placeholder bitmap
+                      flippedcars[x][y] = load_bitmap("placeholder.bmp", NULL); //put the location of your file here
+                      blit(car_spritesheet, //bitmap source
+                      cars[x][y],           // bitmap destination
+                      x*128 +14, y*64+7,              // source  x and y
+                      0,0,                   // destination xand y
+                      100, 50);              // width and height
+                      
+                      }
 	
     }
+    //create buffer
+    BITMAP *buffer =NULL; //create buffer
+    buffer = create_bitmap(800, 600);
+    //initialize player
+    sprite player = {startX, startY};
     
     //create vectors of cars for the first row of cars
     vector<carSprite> firstRow;
@@ -74,6 +98,17 @@ int main() {
     firstRow.push_back(csp2);
     carSprite csp3 = {800,500,rand() % 8,rand() % 21};
     firstRow.push_back(csp3);
+    
+    vector<carSprite> secondRow;
+    carSprite cspf1 = {-100,450,rand() % 8,rand() % 21};
+    secondRow.push_back(cspf1);
+    carSprite cspf2 = {250,450,rand() % 8,rand() % 21};
+    secondRow.push_back(cspf2);
+    carSprite cspf3 = {350,450,rand() % 8,rand() % 21};
+    secondRow.push_back(cspf3);
+    carSprite cspf4 = {700,450,rand() % 8,rand() % 21};
+    secondRow.push_back(cspf4);
+    
     
     
      vector<carSprite> thirdRow;
@@ -93,22 +128,50 @@ int main() {
     fifthRow.push_back(csp9);
     carSprite csp10 = {789,350,rand() % 8,rand() % 21};
     fifthRow.push_back(csp10);
+
+
+    //gameloop
 	while (!key[KEY_ESC]) {
-		rectfill(buffer, 0, 0, 800, 600, BLACK);
+		
+        rectfill(buffer, 0, 0, 800, 600, BLACK);
 		rectfill(buffer, 0, 550, 800, 600, makecol(255,0,255));
-		moveCharacter(player);
 		drawCharacter(player, playerSprite, buffer);
 		drawCars(firstRow, cars, buffer, 20);
+		drawCars(secondRow, cars, buffer, -10);
 		drawCars(thirdRow, cars, buffer, 10);
 		drawCars(fifthRow, cars, buffer, 7);
+        if(time >= 1 && lives >= 1 && hasWon == false)
+        {
+      
+		moveCharacter(player);
+		
 		collision(firstRow, player, lives);
+		collision(secondRow, player, lives);
 		collision(thirdRow, player, lives);
 		collision(fifthRow, player, lives);
+		time-=1;
 		
-		
-		
+        } else
+        {
+              //draw Game Over
+              draw_sprite(buffer, gameOver, 0,0);
+		     
+              
+          }
+          if(player.yLoc < 200)
+          {
+                         hasWon = true;
+                         //draw WIN SCREEN
+              draw_sprite(buffer, winner, 0,0);  
+                         }
+          
+                         
+                   
+                
 	      // write amount of lives on screen	
           textprintf(buffer, font, 0, 10, WHITE, "Lives %i", lives);
+          textprintf(buffer, font, 400, 10, WHITE, "TIME LEFT %i", time);
+          
 	
 	      //copy the buffer to the screen
 	      blit(buffer, screen, 0,0,0,0,800,600);
@@ -120,12 +183,14 @@ int main() {
     destroy_bitmap(car_spritesheet);
     destroy_bitmap(playerSprite);
     destroy_bitmap(buffer);
+    destroy_bitmap(gameOver);
+    destroy_bitmap(winner);
    for(int x=0; x<8; x++)
 	{
 	         for(int y=0; y<21; y++)
 	         {
-                      destroy_bitmap(cars[x][y] );
-                      
+                      destroy_bitmap(cars[x][y]);
+                      destroy_bitmap(flippedcars[x][y]);
                       }
 	
 	
@@ -143,7 +208,7 @@ void collision(vector<carSprite> &carArray, sprite &myS, int &score)
      {
                  for(int i = 0; i < carArray.size(); i++)
                  {
-                         if(myS.xLoc > carArray.at(i).xLoc && myS.xLoc < carArray.at(i).xLoc +75)
+                         if(myS.xLoc > carArray.at(i).xLoc-50 && myS.xLoc < carArray.at(i).xLoc +75)
                          {
                                  myS.xLoc = 375;
                                  myS.yLoc = 550;  
@@ -158,6 +223,7 @@ void collision(vector<carSprite> &carArray, sprite &myS, int &score)
      
      }
 }
+
 void drawCars(vector<carSprite> &carArray, BITMAP *cars[][21], BITMAP *buf, int speed)
 {
      
