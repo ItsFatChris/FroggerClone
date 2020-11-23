@@ -32,6 +32,24 @@ int main() {
 	int startX = 375;
 	int startY = 550;
 	bool hasWon = false;
+	MIDI *music;
+	int pos, length;
+	
+	if (install_sound(DIGI_AUTODETECT, MIDI_AUTODETECT, NULL) != 0) {
+      allegro_message("Error initializing sound system\n%s\n", allegro_error);
+      return 1;
+   }
+
+	//load the midi file
+	music = load_midi("soundFile.mid");
+	if (!music) {
+		allegro_message("Error loading Midi file");
+		return 1;
+	}
+	if (play_midi(music, 0) != 0) {
+		allegro_message("Error playing Midi\n%s", allegro_error);
+		return 1;
+	}
 	
 	BITMAP *playerSprite;
 	playerSprite = load_bitmap("spriteSmallBlackBackground.bmp", NULL);
@@ -170,7 +188,7 @@ int main() {
                 
 	      // write amount of lives on screen	
           textprintf(buffer, font, 0, 10, WHITE, "Lives %i", lives);
-          textprintf(buffer, font, 400, 10, WHITE, "TIME LEFT %i", time);
+          textprintf(buffer, font, 400, 10, WHITE, "TIME LEFT %i", time/10);
           
 	
 	      //copy the buffer to the screen
