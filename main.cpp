@@ -33,7 +33,6 @@ int main() {
 	int startY = 550;
 	bool hasWon = false;
 	MIDI *music;
-	int pos, length;
 	
 	if (install_sound(DIGI_AUTODETECT, MIDI_AUTODETECT, NULL) != 0) {
       allegro_message("Error initializing sound system\n%s\n", allegro_error);
@@ -215,6 +214,8 @@ int main() {
 	
     }
 
+    stop_midi();
+	destroy_midi(music);
 	deinit();
 	return 0;
 }
