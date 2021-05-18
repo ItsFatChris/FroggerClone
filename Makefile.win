@@ -4,7 +4,7 @@
 CPP  = g++.exe
 CC   = gcc.exe
 WINDRES = windres.exe
-RES  = DeBonteFroggerClone_private.res
+RES  = 
 OBJ  = main.o $(RES)
 LINKOBJ  = main.o $(RES)
 LIBS =  -L"C:/Users/Christopher/Desktop/Graphics/Dev-CppPortable/App/devcpp/lib" -mwindows -lalleg_s -lkernel32 -luser32 -lgdi32 -lcomdlg32 -lole32 -ldinput -lddraw -ldxguid -lwinmm -ldsound 
@@ -28,6 +28,3 @@ $(BIN): $(OBJ)
 
 main.o: main.cpp
 	$(CPP) -c main.cpp -o main.o $(CXXFLAGS)
-
-DeBonteFroggerClone_private.res: DeBonteFroggerClone_private.rc 
-	$(WINDRES) -i DeBonteFroggerClone_private.rc --input-format=rc -o DeBonteFroggerClone_private.res -O coff 

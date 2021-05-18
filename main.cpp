@@ -32,6 +32,7 @@ int main() {
 	int startX = 375;
 	int startY = 550;
 	bool hasWon = false;
+	bool hasLost = false;
 	MIDI *music;
 	
 	if (install_sound(DIGI_AUTODETECT, MIDI_AUTODETECT, NULL) != 0) {
@@ -171,16 +172,21 @@ int main() {
         } else
         {
               //draw Game Over
+              hasLost=true;
               draw_sprite(buffer, gameOver, 0,0);
+             
 		     
               
-          }
-          if(player.yLoc < 200)
-          {
+        }
+        
+        
+        if(player.yLoc < 200)
+        {
                          hasWon = true;
                          //draw WIN SCREEN
               draw_sprite(buffer, winner, 0,0);  
-                         }
+              
+        }
           
                          
                    
@@ -193,6 +199,13 @@ int main() {
 	      //copy the buffer to the screen
 	      blit(buffer, screen, 0,0,0,0,800,600);
 	      rest(75);
+	      
+	      if(hasWon || hasLost)
+	      {
+                    rest(5000);
+              break;
+       }
+ 
 	}
 
 
